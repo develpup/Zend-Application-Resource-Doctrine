@@ -1,0 +1,29 @@
+---
+production:
+    resources:
+        doctrine:
+            dsn: 'mysql://dbuser:dbpass@dbhost/dbname'
+            models_path: APPLICATION_PATH/models
+            yaml_schema_path: APPLICATION_PATH/../doctrine/schema
+            migrations_path: APPLICATION_PATH/../doctrine/migrations
+            sql_path: APPLICATION_PATH/../doctrine/sql
+            data_fixtures_path: APPLICATION_PATH/../doctrine/fixtures
+            manager:
+                auto_accessor_override: true
+                autoload_table_classes: true
+                model_loading: model_loading_conservative
+            connection:
+                quote_identifier: true
+                use_native_enum: true
+            generate_models_options:
+                generateTableClasses: true
+
+staging:
+    _extends: production
+
+testing:
+    _extends: production
+
+development:
+    _extends: production
+

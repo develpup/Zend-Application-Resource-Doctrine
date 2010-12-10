@@ -1,0 +1,35 @@
+Installation
+============
+
+Requires >= Zend Framework 1.11
+
+NOTE: These instructions assume a fresh project created using `zf create
+      project ...`
+
+1. Create the following directories relative to the project root folder:
+   - application\resources
+   - doctrine
+   - doctrine\fixtures
+   - doctrine\migrations
+   - doctrine\schema
+   - doctrine\sql
+   - providers
+   - scripts
+
+2. Move the files to the appropriate locations:
+   - application/configs/doctrine.yaml
+   - application/resources/Doctrine.php
+   - providers/DoctrineProvider.php
+
+3. Add the following lines to the '[production]' section of 'application.ini':
+
+   pluginPaths[Application_Resource] = APPLICATION_PATH "/resources"
+   config[] = APPLICATION_PATH "/configs/doctrine.yaml"
+
+4. Do a sanity check and make sure your application still loads in a browser.
+
+
+`zf list doctrine`          : show a list of available tasks
+`zf help doctrine`          : show detailed task information
+`zf run doctrine ...`       : run various Doctrine CLI tasks
+`zf configure doctrine ...` : change configuration settings
