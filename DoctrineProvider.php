@@ -22,6 +22,12 @@ require_once 'Doctrine/Cli.php';
 class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
 {
     /**
+     * The default environment value
+     * @const string
+     */
+    const DEFAULT_ENV = 'production';
+
+    /**
      * The Doctrine CLI object
      * @var Doctrie_Cli
      */
@@ -34,20 +40,10 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
     private $_doctrineConfig = null;
 
     /**
-     * Show the Doctrine CLI help
+     * List of valid environments
+     * @var array
      */
-    public function help()
-    {
-        $this->run('help');
-    }
-
-    /**
-     * Show the list of Doctrine CLI tasks
-     */
-    public function showTasks()
-    {
-        $this->run();
-    }
+    private $_environments = array(self::DEFAULT_ENV, 'staging', 'testing', 'development');
 
     /**
      * Show setting defaults
@@ -55,36 +51,89 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
     public function showDefaults()
     {
         $s = array(
-            'dsn'                => '',
-            'models_path'        => '',
-            'yaml_schema_path'   => '',
-            'migrations_path'    => '',
-            'sql_path'           => '',
-            'data_fixtures_path' => '',
+            'dsn'                       => '',
+            'models_path'               => '',
+            'yaml_schema_path'          => '',
+            'migrations_path'           => '',
+            'sql_path'                  => '',
+            'data_fixtures_path'        => '',
+            'compiled_path'             => '',
+            'autoregister_custom_tasks' => true,
+            'rethrow_exceptions'        => false,
             'manager' => array(
-                'auto_accessor_override' => false,
-                'autoload_table_classes' => false,
-                'model_loading'          => 'model_loading_aggressive',
-                'table_class'            => 'Doctrine_Table',
-                'model_class_prefix'     => '',
+                'cache'                      => null,
+                'result_cache'               => null,
+                'query_cache'                => null,
+                'load_references'            => true,
+                'listener'                   => 'Doctrine_EventListener()',
+                'record_listener'            => 'Doctrine_Record_Listener()',
+                'throw_exceptions'           => true,
+                'validate'                   => 'validate_none',
+                'query_limit'                => 'query_limit_records',
+                'idxname_format'             => '%s_idx',
+                'seqname_format'             => '%s_seq',
+                'tblname_format'             => '%s',
+                'fkname_format'              => '%s',
+                'quote_identifier'           => false,
+                'seqcol_name'                => 'id',
+                'portability'                => 'portability_none',
+                'export'                     => 'export_all',
+                'decimal_places'             => 2,
+                'default_param_namespace'    => 'doctrine',
+                'autoload_table_classes'     => false,
+                'use_dql_callbacks'          => false,
+                'auto_accessor_override'     => false,
+                'auto_free_query_objects'    => false,
+                'default_identifier_options' => 'array()',
+                'default_column_options'     => 'array()',
+                'hydrate_overwrite'          => true,
+                'query_class'                => 'Doctrine_Query',
+                'collection_class'           => 'Doctrine_Collection',
+                'table_class'                => 'Doctrine_Table',
+                'cascade_saves'              => true,
+                'table_class_format'         => '%sTable',
+
+                'model_class_prefix'         => '',
+                'model_loading'              => 'model_loading_aggressive',
+
+                //'tblclass_format'            => '?',
+                'default_table_type'         => 'INNODB',
+                //'def_text_length'            => '?',
+                //'def_varchar_length'         => '?',
+                //'def_tablespace'             => '?',
+                'default_table_charset'      => '?',
+                'default_table_collate'      => '?',
+                'max_identifier_length'      => '?',
             ),
-            'connection' => array(
-                'quote_identifier' => false,
-                'use_native_enum'  => false
+            'connections' => array(
+                'default' => array(
+                    'use_native_enum'        => false,
+                    'use_native_set'         => '?',
+                    //'driver_name'            => '?',
+                ),
             ),
             'generate_models_options' => array(
-                'packagesPrefix'       => 'Package',
-                'packagesPath'         => '',
-                'packagesFolderName'   => 'packages',
-                'suffix'               => '.php',
-                'generateBaseClasses'  => true,
-                'generateTableClasses' => false,
-                'generateAccessors'    => false,
-                'baseClassPrefix'      => 'Base',
-                'baseClassesDirectory' => 'generated',
-                'baseClassName'        => 'Doctrine_Record'
+                'packagesPrefix'             => 'Package',
+                'packagesPath'               => '',
+                'packagesFolderName'         => 'packages',
+                'suffix'                     => '.php',
+                'generateBaseClasses'        => true,
+                'generateTableClasses'       => false,
+                'generateAccessors'          => false,
+                'baseClassPrefix'            => 'Base',
+                'baseClassesDirectory'       => 'generated',
+                'baseClassName'              => 'Doctrine_Record',
+                'baseTableClassName'         => 'Doctrine_Table',
+                'tableClassFormat'           => '%sTable',
+                'classPrefix'                => null,
+                'classPrefixFiles'           => true,
+                'pearStyle'                  => false,
+                'eolStyle'                   => null,
+                'phpDocPackage'              => '##PACKAGE##',
+                'phpDocSubpackage'           => '##SUBPACKAGE##',
+                'phpDocName'                 => '##NAME##',
+                'phpDocEmail'                => '##EMAIL##',
             ),
-            'dql_query' => ''
         );
 
         foreach ($s as $top => $top_val) {
@@ -92,16 +141,21 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
             if (is_array($top_val)) {
               echo ':'.PHP_EOL;
               foreach ($top_val as $key => $val) {
-              if (is_string($val)) $val = "'$val'";
+              if (is_string($val) && !preg_match('/[(][)]$/', $val)) $val = "'$val'";
               if (is_bool($val)) $val = $val ? 'true' : 'false';
+              if (is_null($val)) $val = 'null';
+              if (preg_match('/^[A-Z]/', $val)) $val = 'new Doctrine_'.$val;
                 echo "    $key = $val".PHP_EOL;
               }
             } else {
-              if (is_string($top_val)) $top_val = "'$top_val'";
+              if (is_string($top_val) && !preg_match('/[(][)]$/', $top_val)) $top_val = "'$top_val'";
               if (is_bool($top_val)) $top_val = $top_val ? 'true' : 'false';
+              if (is_null($top_val)) $top_val = 'null';
+              if (preg_match('/^[A-Z]/', $top_val)) $top_val = 'new '.$top_val;
               echo " = $top_val".PHP_EOL;
             }
         }
+        echo PHP_EOL.'NOTE: Each "connection" inherits all settings from the "manager".';
     }
 
     /**
@@ -119,15 +173,11 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
     /**
      * Configures the Doctrine DSN
      */
-    public function configure($key = null, $value = null, $env = 'production')
+    public function configure($key = 'dsn', $value = null, $env = self::DEFAULT_ENV)
     {
-        if (empty($key)) {
-            $key = 'dsn';
-        }
-
         if (null === $value) {
             $new_env = null;
-            while (false === in_array($new_env, array('production','testing','staging','development'))) {
+            while (false === in_array($new_env, $this->_environments)) {
                 $new_env = $this->_registry->getClient()->promptInteractiveInput('Enter environment:')->getContent();
                 if (null === $new_env) $new_env = $env;
             }
@@ -164,7 +214,7 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
      * @param string $value
      * @param string $env
      */
-    protected function _configSet($key, $value, $env = 'production')
+    protected function _configSet($key, $value, $env = self::DEFAULT_ENV)
     {
         require_once 'Doctrine/Parser/sfYaml/sfYaml.php';
         require_once 'Zend/Config.php';
@@ -200,8 +250,8 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
 
         if ( ! isset($cfg->{$env})) {
             $cfg->{$env} = new Zend_Config(array(), true);
-            if ('production' !== $env) {
-                $cfg->{$env}->_extends = 'production';
+            if (self::DEFAULT_ENV !== $env) {
+                $cfg->{$env}->_extends = self::DEFAULT_ENV;
             }
         }
 

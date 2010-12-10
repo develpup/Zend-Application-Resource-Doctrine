@@ -41,29 +41,37 @@ class Application_Resource_Doctrine extends Zend_Application_Resource_ResourceAb
 
         $manager = Doctrine_Manager::getInstance();
 
-        $this->_setDoctrineAttributes(
-            $manager,
-            @array_merge(
-                (array)$options['manager'],
-                $this->_default_attributes['manager']
-            )
-        );
+        if (array_key_exists('manager', $options)) {
+            $this->_setDoctrineAttributes($manager, $options['manager']);
+        }
 
         Doctrine_Core::loadModels($options['models_path']);
 
+        $conn_opts = array();
+
+        if (array_key_exists('connections', $options)) {
+            $count = count($options['connections']);
+            if (1 === $count) {
+                $conn_opts = current($options['connections']);
+            } else if ($count > 1) {
+                $connections = array();
+                foreach ($options['connections'] as $name => $opts) {
+                    // crappy hack until Zend_Config_Yaml is better
+                    $dsn = str_replace(array('"', "'"), '', $opts['dsn']);
+                    unset($opts['dsn']);
+                    $conn = Doctrine_Manager::connection($dsn, $name);
+                    $this->_setDoctrineAttributes($conn, $opts);
+                    $connections[$name] = $conn;
+                }
+                return $connections;
+            }
+        }
+
+        $dsn = isset($conn_opts['dsn']) ? $conn_opts['dsn'] : $options['dsn'];
         // crappy hack until Zend_Config_Yaml is better
-        $dsn = str_replace(array('"', "'"), '', $options['dsn']);
-
+        $dsn = str_replace(array('"', "'"), '', $dsn);
         $connection = Doctrine_Manager::connection($dsn);
-
-        $this->_setDoctrineAttributes(
-            $connection,
-            @array_merge(
-                (array)$options['connection'],
-                $this->_default_attributes['connection']
-            )
-        );
-
+        $this->_setDoctrineAttributes($connection, $conn_opts);
         return $connection;
     }
 

@@ -12,9 +12,10 @@ production:
         auto_accessor_override: true
         autoload_table_classes: true
         model_loading: model_loading_conservative
-      connection:
-        quote_identifier: true
-        use_native_enum: true
+      connections:
+        default:
+          quote_identifier: true
+          use_native_enum: true
       generate_models_options:
         generateTableClasses: true
 

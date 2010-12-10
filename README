@@ -28,3 +28,7 @@ NOTE: These instructions assume a project created using `zf create project ...`
 
 
 Run `zf ? doctrine` to get a list of zf tool commands.
+Run `zf run doctrine` to get a list of Doctrine tasks
+Run `zf run doctrine help` to get usage for all Doctrine tasks
+Run `zf run doctrine task-name help` to get usage for a specific Doctrine task
+
