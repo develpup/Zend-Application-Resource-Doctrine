@@ -63,7 +63,7 @@ class Application_Resource_Doctrine extends Zend_Application_Resource_ResourceAb
                 $this->_default_attributes['connection']
             )
         );
-var_dump($manager->getAttribute(Doctrine_Core::ATTR_MODEL_LOADING));die();
+
         return $connection;
     }
 
