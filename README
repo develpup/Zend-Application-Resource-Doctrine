@@ -3,8 +3,7 @@ Installation
 
 Requires >= Zend Framework 1.11
 
-NOTE: These instructions assume a fresh project created using `zf create
-      project ...`
+NOTE: These instructions assume a project created using `zf create project ...`
 
 1. Create the following directories relative to the project root folder:
    - application\resources
