@@ -36,21 +36,24 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
     /**
      * Show the Doctrine CLI help
      */
-    public function help() {
+    public function help()
+    {
         $this->run('help');
     }
 
     /**
      * Show the list of Doctrine CLI tasks
      */
-    public function showTasks() {
+    public function showTasks()
+    {
         $this->run();
     }
 
     /**
      * Show setting defaults
      */
-    public function showDefaults() {
+    public function showDefaults()
+    {
         $s = array(
             'dsn'                => '',
             'models_path'        => '',
@@ -228,7 +231,7 @@ class DoctrineProvider extends Zend_Tool_Project_Provider_Abstract
         $yaml = str_replace(PHP_EOL.'staging:'.PHP_EOL, PHP_EOL.PHP_EOL.'staging:'.PHP_EOL, $yaml);
         $yaml = str_replace(PHP_EOL.'testing:'.PHP_EOL, PHP_EOL.PHP_EOL.'testing:'.PHP_EOL, $yaml);
 
-        file_put_contents($cfg_file.'.test.yaml', $yaml.PHP_EOL);
+        file_put_contents($cfg_file, $yaml.PHP_EOL);
     }
 
     /**
