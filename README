@@ -28,9 +28,4 @@ NOTE: These instructions assume a fresh project created using `zf create
 4. Do a sanity check and make sure your application still loads in a browser.
 
 
-zf command line usage:
-
-  zf list doctrine          : show a list of available tasks
-  zf help doctrine          : show detailed task information
-  zf run doctrine ...       : run various Doctrine CLI tasks
-  zf configure doctrine ... : change configuration settings
+Run `zf ? doctrine` to get a list of zf tool commands.
