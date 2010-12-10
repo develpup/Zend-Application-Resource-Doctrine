@@ -14,7 +14,6 @@ NOTE: These instructions assume a fresh project created using `zf create
    - doctrine\schema
    - doctrine\sql
    - providers
-   - scripts
 
 2. Move the files to the appropriate locations:
    - application/configs/doctrine.yaml
@@ -29,7 +28,9 @@ NOTE: These instructions assume a fresh project created using `zf create
 4. Do a sanity check and make sure your application still loads in a browser.
 
 
-`zf list doctrine`          : show a list of available tasks
-`zf help doctrine`          : show detailed task information
-`zf run doctrine ...`       : run various Doctrine CLI tasks
-`zf configure doctrine ...` : change configuration settings
+zf command line usage:
+
+  zf list doctrine          : show a list of available tasks
+  zf help doctrine          : show detailed task information
+  zf run doctrine ...       : run various Doctrine CLI tasks
+  zf configure doctrine ... : change configuration settings
